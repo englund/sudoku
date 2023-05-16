@@ -1,7 +1,9 @@
 package routes
 
 import (
+	"log"
 	"net/http"
+	"sudoku/api/pkg/errors"
 	"sudoku/api/pkg/services"
 
 	"github.com/gin-gonic/gin"
@@ -30,12 +32,16 @@ type getNewGameResponse struct {
 
 func (ctx context) getNewGame(gCtx *gin.Context) {
 	board, err := ctx.ss.GetNewGame()
-	// TODO: error handling
 	if err != nil {
-		gCtx.JSON(http.StatusInternalServerError, gin.H{
-			"error": err.Error(),
-		})
-		return
+		switch e := err.(type) {
+		case *errors.ApiError: // TODO: may be overkill for this project
+			gCtx.JSON(http.StatusInternalServerError, e)
+			return
+		default:
+			log.Println(e)
+			gCtx.JSON(http.StatusInternalServerError, errors.NewUnknownApiError(err))
+			return
+		}
 	}
 	gCtx.JSON(http.StatusOK, mapToGetNewGameResponse(board))
 }

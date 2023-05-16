@@ -11,11 +11,13 @@ import (
 
 type sudokuService interface {
 	GetNewGame() (*services.Board, error)
+	SolveGame(*services.Board) (*services.Board, error)
 }
 
 func Sudoku(g *gin.RouterGroup, ss sudokuService) {
 	r := newSudokuRoutes(ss)
 	g.GET("/", r.getNewGame)
+	g.POST("/solve", r.solveGame)
 }
 
 type context struct {
@@ -24,6 +26,33 @@ type context struct {
 
 func newSudokuRoutes(ss sudokuService) *context {
 	return &context{ss}
+}
+
+type postSolveGameRequest struct {
+	Board *services.Board `json:"board"`
+}
+
+func (ctx context) solveGame(gCtx *gin.Context) {
+	var request postSolveGameRequest
+	if gCtx.Bind(&request) != nil {
+		gCtx.JSON(http.StatusBadRequest, nil)
+		return
+	}
+
+	solvedBoard, err := ctx.ss.SolveGame(request.Board)
+	if err != nil {
+		switch e := err.(type) {
+		case *errors.ApiError: // TODO: may be overkill for this project
+			gCtx.JSON(http.StatusInternalServerError, e)
+			return
+		default:
+			log.Println(e)
+			gCtx.JSON(http.StatusInternalServerError, errors.NewUnknownApiError(err))
+			return
+		}
+	}
+
+	gCtx.JSON(http.StatusOK, mapToBoardResponse(solvedBoard))
 }
 
 type getNewGameResponse struct {
@@ -43,10 +72,10 @@ func (ctx context) getNewGame(gCtx *gin.Context) {
 			return
 		}
 	}
-	gCtx.JSON(http.StatusOK, mapToGetNewGameResponse(board))
+	gCtx.JSON(http.StatusOK, mapToBoardResponse(board))
 }
 
-func mapToGetNewGameResponse(board *services.Board) *getNewGameResponse {
+func mapToBoardResponse(board *services.Board) *getNewGameResponse {
 	return &getNewGameResponse{
 		Board: board,
 	}

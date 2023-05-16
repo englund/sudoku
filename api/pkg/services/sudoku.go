@@ -9,6 +9,11 @@ func NewSudokuService() *context {
 	return &context{}
 }
 
+func (ctx context) SolveGame(board *Board) (*Board, error) {
+	// TODO: solve
+	return board, nil
+}
+
 func (ctx context) GetNewGame() (*Board, error) {
 	// TODO: error handling
 	return createEmptyGame(9), nil

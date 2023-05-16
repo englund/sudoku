@@ -1,8 +1,8 @@
 package main
 
 import (
-	"net/http"
 	"sudoku/api/pkg/routes"
+	"sudoku/api/pkg/services"
 
 	"github.com/gin-gonic/gin"
 )
@@ -12,11 +12,11 @@ func main() {
 
 	routes.Status(r.Group("/status"))
 
-	r.GET("/ping", func(c *gin.Context) {
-		c.JSON(http.StatusOK, gin.H{
-			"message": "pong",
-		})
-	})
+	v1 := r.Group("/v1")
+	{
+		sudokuService := services.NewSudokuService()
+		routes.Sudoku(v1.Group("/sudoku"), sudokuService)
+	}
 
 	r.Run(":8080")
 }

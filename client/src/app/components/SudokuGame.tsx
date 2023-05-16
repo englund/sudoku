@@ -19,7 +19,7 @@ const getNewBoard2 = (size: number) => {
   return board;
 };
 
-const Board: FC = () => {
+const SudokuGame: FC = () => {
   const [board, setBoard] = useState(getNewBoard2(sizeOfBoard));
 
   const updateValue = (x: number, y: number, value: string) => {
@@ -38,7 +38,10 @@ const Board: FC = () => {
           >
             {row.map((value, y) => {
               return (
-                <div key={`${x}-${y}`} className="w-12 h-12">
+                <div
+                  key={`${x}-${y}`}
+                  className="w-12 h-12 grid place-content-center"
+                >
                   <input
                     type="text"
                     value={value}
@@ -57,4 +60,4 @@ const Board: FC = () => {
   );
 };
 
-export default Board;
+export default SudokuGame;

@@ -1,8 +1,6 @@
 package services
 
-type Board struct {
-	Board string
-}
+type Board = [][]uint
 
 type context struct {
 }
@@ -13,5 +11,13 @@ func NewSudokuService() *context {
 
 func (ctx context) GetNewGame() (*Board, error) {
 	// TODO: error handling
-	return &Board{Board: "the board"}, nil
+	return createEmptyGame(9), nil
+}
+
+func createEmptyGame(size int) *Board {
+	a := make([][]uint, size)
+	for i := range a {
+		a[i] = make([]uint, size)
+	}
+	return &a
 }

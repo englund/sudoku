@@ -27,7 +27,7 @@ func newSudokuRoutes(ss sudokuService) *context {
 }
 
 type getNewGameResponse struct {
-	Board string `json:"board"`
+	Board *services.Board `json:"board"`
 }
 
 func (ctx context) getNewGame(gCtx *gin.Context) {
@@ -48,6 +48,6 @@ func (ctx context) getNewGame(gCtx *gin.Context) {
 
 func mapToGetNewGameResponse(board *services.Board) *getNewGameResponse {
 	return &getNewGameResponse{
-		Board: board.Board,
+		Board: board,
 	}
 }

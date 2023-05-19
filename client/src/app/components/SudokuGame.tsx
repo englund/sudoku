@@ -1,30 +1,27 @@
 "use client";
 
-import { FC, useState } from "react";
-
-const sizeOfBoard = 9;
-
-const getNewBoard = (size: number) =>
-  Array.from(new Array<string>(size), () =>
-    Array.from(new Array<string>(size), () => "")
-  );
-
-const getNewBoard2 = (size: number) => {
-  let board = getNewBoard(size);
-  for (let x = 0; x < size; x++) {
-    for (let y = 0; y < size; y++) {
-      board[x][y] = `${x}${y}`;
-    }
-  }
-  return board;
-};
+import { useNewGame } from "@/api/sudoku";
+import { FC, useEffect, useState } from "react";
 
 const SudokuGame: FC = () => {
-  const [board, setBoard] = useState(getNewBoard2(sizeOfBoard));
+  const { data, isLoading, isError } = useNewGame();
+  const [board, setBoard] = useState(data);
+
+  useEffect(() => {
+    if (data == null) return;
+    setBoard(data);
+  }, [data]);
+
+  if (isLoading) return <span>loading...</span>;
+
+  if (isError)
+    return <span>something went horrible wrong, maybe try again</span>;
+
+  if (board == null) return null;
 
   const updateValue = (x: number, y: number, value: string) => {
     const newBoard = [...board];
-    newBoard[x][y] = value;
+    newBoard[x][y] = +value; // TODO: validate number
     setBoard(newBoard);
   };
 
@@ -44,8 +41,8 @@ const SudokuGame: FC = () => {
                 >
                   <input
                     type="text"
-                    value={value}
-                    onChange={(e) => updateValue(x, y, e.target.value)} // TODO: validate input
+                    value={value === 0 ? "" : value}
+                    onChange={(e) => updateValue(x, y, e.target.value)}
                     min={0}
                     max={9}
                     className="w-6 bg-black outline-0"

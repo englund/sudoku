@@ -11,7 +11,7 @@ import (
 
 type sudokuService interface {
 	GetNewGame() (*services.Board, error)
-	SolveGame(*services.Board) (*services.Board, error)
+	SolveGame(*services.Board) (bool, *services.Board)
 }
 
 func Sudoku(g *gin.RouterGroup, ss sudokuService) {
@@ -39,20 +39,13 @@ func (ctx context) solveGame(gCtx *gin.Context) {
 		return
 	}
 
-	solvedBoard, err := ctx.ss.SolveGame(request.Board)
-	if err != nil {
-		switch e := err.(type) {
-		case *errors.ApiError: // TODO: may be overkill for this project
-			gCtx.JSON(http.StatusInternalServerError, e)
-			return
-		default:
-			log.Println(e)
-			gCtx.JSON(http.StatusInternalServerError, errors.NewUnknownApiError(err))
-			return
-		}
+	isSolved, board := ctx.ss.SolveGame(request.Board)
+	if isSolved {
+		gCtx.JSON(http.StatusOK, mapToBoardResponse(board))
+		return
 	}
 
-	gCtx.JSON(http.StatusOK, mapToBoardResponse(solvedBoard))
+	gCtx.JSON(http.StatusOK, nil) // TODO: what to return here?
 }
 
 type getNewGameResponse struct {

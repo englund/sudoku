@@ -32,6 +32,11 @@ type postSolveGameRequest struct {
 	Board *services.Board `json:"board"`
 }
 
+type postSolveGameResponse struct {
+	Board    *services.Board `json:"board"`
+	IsSolved bool            `json:"isSolved"`
+}
+
 func (ctx context) solveGame(gCtx *gin.Context) {
 	var request postSolveGameRequest
 	if gCtx.Bind(&request) != nil {
@@ -40,12 +45,14 @@ func (ctx context) solveGame(gCtx *gin.Context) {
 	}
 
 	isSolved, board := ctx.ss.SolveGame(request.Board)
-	if isSolved {
-		gCtx.JSON(http.StatusOK, mapToBoardResponse(board))
-		return
-	}
+	gCtx.JSON(http.StatusOK, mapToSolveGameResponse(board, isSolved))
+}
 
-	gCtx.JSON(http.StatusOK, nil) // TODO: what to return here?
+func mapToSolveGameResponse(board *services.Board, isSolved bool) *postSolveGameResponse {
+	return &postSolveGameResponse{
+		Board:    board,
+		IsSolved: isSolved,
+	}
 }
 
 type getNewGameResponse struct {
@@ -65,10 +72,10 @@ func (ctx context) getNewGame(gCtx *gin.Context) {
 			return
 		}
 	}
-	gCtx.JSON(http.StatusOK, mapToBoardResponse(board))
+	gCtx.JSON(http.StatusOK, mapToNewGameResponse(board))
 }
 
-func mapToBoardResponse(board *services.Board) *getNewGameResponse {
+func mapToNewGameResponse(board *services.Board) *getNewGameResponse {
 	return &getNewGameResponse{
 		Board: board,
 	}

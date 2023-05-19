@@ -43,3 +43,29 @@ export const useNewGame = () => {
 
   return { data: board, isLoading, isError };
 };
+
+interface PostSolveGameResponse {
+  board: Board;
+  isSolved: boolean;
+}
+
+export const postSolveGame = async (
+  board: Board
+): Promise<PostSolveGameResponse> => {
+  const response = await fetch(`${baseUrl}/v1/sudoku/solve`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ board }),
+  });
+
+  const json = await response.json();
+
+  console.log(json.isSolved);
+
+  return {
+    board: json.board,
+    isSolved: json.isSolved,
+  };
+};

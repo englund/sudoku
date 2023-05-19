@@ -4,11 +4,19 @@ import (
 	"sudoku/api/pkg/routes"
 	"sudoku/api/pkg/services"
 
+	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 )
 
 func main() {
 	r := gin.Default()
+
+	r.Use(cors.New(cors.Config{
+		AllowOrigins:     []string{"*"},
+		AllowMethods:     []string{"GET", "POST"},
+		AllowHeaders:     []string{"Origin"},
+		AllowCredentials: true,
+	}))
 
 	routes.Status(r.Group("/status"))
 

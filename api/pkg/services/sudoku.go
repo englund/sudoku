@@ -1,5 +1,11 @@
 package services
 
+import (
+	"errors"
+	"math/rand"
+	"time"
+)
+
 type Board = [][]int
 
 const N = 9
@@ -77,12 +83,68 @@ func (ctx context) SolveGame(board *Board) (bool, *Board) {
 	return isSolved, board
 }
 
-func (ctx context) GetNewGame() (*Board, error) {
-	// TODO: error handling
-	return createEmptyGame(9), nil
+func getUniqueRandomSlice(size int) []int {
+	rand.Seed(time.Now().Unix())
+	slice := make([]int, 0)
+
+	// create list of values
+	for i := 0; i < size; i++ {
+		slice = append(slice, i+1)
+	}
+
+	// shuffle
+	for i := range slice {
+		j := rand.Intn(i + 1)
+		slice[i], slice[j] = slice[j], slice[i]
+	}
+
+	return slice
 }
 
-func createEmptyGame(size int) *Board {
+func fillFirstBlockWithRandomValues(board Board) Board {
+	rand.Seed(time.Now().Unix())
+
+	randVals := getUniqueRandomSlice(9)
+
+	for i := 0; i < 3; i++ {
+		for j := 0; j < 3; j++ {
+			board[i][j], randVals = randVals[0], randVals[1:]
+		}
+	}
+
+	return board
+}
+
+func keepRandomNbrOfValues(board Board, keep int) Board {
+	for i := 0; i < (N*N)-keep; i++ {
+		for {
+			row := rand.Intn(9)
+			col := rand.Intn(9)
+			if board[row][col] != 0 {
+				board[row][col] = 0
+				break
+			}
+		}
+	}
+
+	return board
+}
+
+func (ctx context) GetNewGame() (*Board, error) {
+	board := *createEmptyBoard(9)
+	board = fillFirstBlockWithRandomValues(board)
+
+	isSolved := solve(board, 0, 0)
+	if !isSolved {
+		return nil, errors.New("could not create solvable board") // TODO: create api error, or bruteforce retry until found one
+	}
+
+	board = keepRandomNbrOfValues(board, 25)
+
+	return &board, nil
+}
+
+func createEmptyBoard(size int) *Board {
 	a := make([][]int, size)
 	for i := range a {
 		a[i] = make([]int, size)

@@ -3,6 +3,7 @@
 import { postSolveGame, useNewGame } from "@/api/sudoku";
 import { FC, useEffect, useState } from "react";
 
+// TODO: split into at least two components; SudokuGame and SudokuCell
 const SudokuGame: FC = () => {
   const { data, isLoading, isError } = useNewGame();
   const [board, setBoard] = useState(data);

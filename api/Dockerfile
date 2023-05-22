@@ -10,7 +10,7 @@ COPY ./ ./
 RUN CGO_ENABLED=0 GOOS=linux go build -o /sudoku-api ./cmd/api/main.go
 
 # Production image
-FROM scratch as runner
+FROM scratch as run
 
 WORKDIR /
 

@@ -1,0 +1,4 @@
+- [ ] extract sudoku solver and generator from SudokuService
+- [ ] use api error with code to create better error management (aka think more about error handling)
+- [ ] make CORS AllowOrigins to only allow certain origins (http://localhost:8002)
+- [ ] add https

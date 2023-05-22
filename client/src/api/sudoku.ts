@@ -6,7 +6,7 @@ interface GetNewGameResponse {
   board: Board;
 }
 
-const baseUrl = "http://localhost:8080";
+const baseUrl = "http://localhost:8001";
 
 const getNewGame = async (): Promise<GetNewGameResponse> => {
   const response = await fetch(`${baseUrl}/v1/sudoku/`, {
